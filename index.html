@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BEAUTY SMILE — Инженерия улыбки</title>
+<style>
+:root {
+  --cream: #F5F0E8;
+  --cream-2: #EDE6D8;
+  --graphite: #1A1A1A;
+  --graphite-2: #242424;
+  --electric: #2F5BFF;
+  --lime: #C8FF3D;
+  --pink: #FF6B9D;
+  --iridescent: linear-gradient(135deg, #2F5BFF 0%, #C8FF3D 45%, #FF6B9D 100%);
+  --iridescent-soft: linear-gradient(135deg, rgba(47,91,255,0.15), rgba(200,255,61,0.15), rgba(255,107,157,0.15));
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--cream);
+  color: var(--graphite);
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (min-width: 769px) {
+  body { cursor: none; }
+  a, button, input, textarea, select { cursor: none; }
+}
+
+/* ========== CUSTOM CURSOR ========== */
+.cursor {
+  position: fixed;
+  width: 28px; height: 28px;
+  border: 2.5px solid var(--graphite);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transition: width 0.3s cubic-bezier(.22,1,.36,1), height 0.3s, background 0.3s, border-color 0.3s;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(200,255,61,0.5) 0%, rgba(47,91,255,0.5) 100%);
+  backdrop-filter: blur(3px);
+}
+.cursor.hover {
+  width: 64px; height: 64px;
+  background: radial-gradient(circle, rgba(200,255,61,0.8) 0%, rgba(47,91,255,0.8) 100%);
+  border-color: var(--electric);
+}
+.cursor.text {
+  width: 80px; height: 80px;
+  background: rgba(245, 240, 232, 0.95);
+  border-color: var(--graphite);
+  color: var(--graphite);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  backdrop-filter: none;
+}
+.cursor.text::after { content: 'drag'; }
+@media (max-width: 768px) { .cursor { display: none; } }
+
+/* ========== UTILITIES ========== */
+.container { max-width: 1400px; margin: 0 auto; padding: 0 5vw; }
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s cubic-bezier(.22,1,.36,1), transform 0.9s cubic-bezier(.22,1,.36,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; padding: 1.1rem 2.2rem;
+  background: var(--graphite); color: var(--cream); border: none; border-radius: 60px;
+  font-weight: 600; font-size: 1rem; text-decoration: none; position: relative; overflow: hidden;
+  transition: color 0.3s; font-family: inherit;
+}
+.btn::before {
+  content: ''; position: absolute; inset: 0; background: var(--iridescent);
+  transform: translateY(101%); transition: transform 0.5s cubic-bezier(.22,1,.36,1); z-index: 0;
+}
+.btn:hover::before { transform: translateY(0); }
+.btn:hover { color: var(--graphite); }
+.btn span { position: relative; z-index: 1; }
+.btn .arrow { position: relative; z-index: 1; transition: transform 0.3s; }
+.btn:hover .arrow { transform: translateX(4px); }
+
+.btn-outline { background: transparent; border: 1.5px solid var(--graphite); color: var(--graphite); }
+.btn-outline::before { background: var(--graphite); transform: translateY(101%); }
+.btn-outline:hover { color: var(--cream); }
+
+.eyebrow {
+  display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.15em; padding: 0.4rem 1rem; border: 1px solid currentColor;
+  border-radius: 60px; margin-bottom: 1.5rem; opacity: 0.7;
+}
+.section-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; margin-bottom: 1.5rem; }
+.section-sub { font-size: 1.1rem; max-width: 560px; opacity: 0.7; line-height: 1.6; }
+
+/* ========== HEADER ========== */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 1.5rem 0;
+  transition: background 0.4s, padding 0.4s, backdrop-filter 0.4s;
+}
+.header.scrolled { background: rgba(245, 240, 232, 0.85); backdrop-filter: blur(20px); padding: 1rem 0; box-shadow: 0 1px 0 rgba(26,26,26,0.08); }
+.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+.logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.04em; text-decoration: none; color: var(--graphite); display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 32px; height: 32px; background: var(--iridescent); border-radius: 50%; position: relative; overflow: hidden; }
+.logo-mark::after { content: ''; position: absolute; inset: 6px; background: var(--cream); border-radius: 50%; }
+.nav { display: flex; gap: 2rem; list-style: none; }
+.nav a { color: var(--graphite); text-decoration: none; font-weight: 500; font-size: 0.95rem; position: relative; padding: 0.25rem 0; }
+.nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--graphite); transition: width 0.3s; }
+.nav a:hover::after { width: 100%; }
+
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+.header-cta { padding: 0.75rem 1.5rem; font-size: 0.9rem; }
+.burger { display: none; width: 40px; height: 40px; background: none; border: none; position: relative; }
+.burger span { position: absolute; left: 10px; right: 10px; height: 2px; background: var(--graphite); transition: all 0.3s; }
+.burger span:nth-child(1) { top: 15px; }
+.burger span:nth-child(2) { top: 23px; }
+.burger.active span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+.burger.active span:nth-child(2) { top: 19px; transform: rotate(-45deg); }
+
+.mobile-menu { position: fixed; inset: 0; background: var(--graphite); color: var(--cream); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.5rem; transform: translateY(-100%); transition: transform 0.5s cubic-bezier(.22,1,.36,1); }
+.mobile-menu.open { transform: translateY(0); }
+.mobile-menu a { color: var(--cream); text-decoration: none; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+.mobile-menu a:hover { color: var(--lime); }
+
+@media (max-width: 900px) {
+  .nav { display: none; }
+  .burger { display: block; }
+  .header-cta { display: none; }
+}
+
+/* ========== HERO ========== */
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 10rem 0 4rem; position: relative; overflow: hidden; }
+.hero-shapes { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-shapes .shape { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; animation: float 10s ease-in-out infinite; }
+.shape-1 { width: 45vw; height: 45vw; background: var(--electric); top: -12vw; right: -12vw; }
+.shape-2 { width: 30vw; height: 30vw; background: var(--lime); bottom: 8vh; left: -8vw; animation-delay: -3s; }
+.shape-3 { width: 20vw; height: 20vw; background: var(--pink); top: 40vh; right: 20vw; animation-delay: -6s; opacity: 0.4; }
+@keyframes float { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(2vw, -2vh) scale(1.08); } }
+
+.hero-content { position: relative; z-index: 2; }
+.hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 0.5rem 1rem; background: rgba(26,26,26,0.06); border-radius: 60px; font-size: 0.85rem; font-weight: 500; margin-bottom: 2rem; }
+.hero-badge .dot { width: 8px; height: 8px; background: #22C55E; border-radius: 50%; box-shadow: 0 0 0 0 rgba(34,197,94,0.6); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); } 70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+
+/* УМЕНЬШЕН РАЗМЕР ШРИФТА, ЧТОБЫ НЕ ОБРЕЗАЛОСЬ */
+.hero-title { font-size: clamp(2.5rem, 8vw, 7.5rem); font-weight: 900; line-height: 0.88; letter-spacing: -0.05em; margin-bottom: 2rem; position: relative; }
+.hero-title .line { display: block; overflow: hidden; }
+.hero-title .word { display: inline-block; transform: translateY(110%); animation: wordIn 0.9s cubic-bezier(.22,1,.36,1) forwards; }
+.hero-title .accent { background: var(--iridescent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; }
+.hero-title .line:nth-child(2) .word { animation-delay: 0.15s; }
+.hero-title .line:nth-child(3) .word { animation-delay: 0.3s; }
+@keyframes wordIn { to { transform: translateY(0); } }
+
+.hero-bottom { display: grid; grid-template-columns: 1fr auto; gap: 3rem; align-items: end; margin-top: 2rem; }
+.hero-desc { max-width: 480px; font-size: 1.15rem; line-height: 1.55; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+.hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s 0.9s forwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.hero-stats { display: flex; gap: 3rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(26,26,26,0.15); opacity: 0; animation: fadeUp 0.8s 1.1s forwards; }
+.stat-value { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+.stat-value .suffix { font-size: 1.5rem; opacity: 0.6; }
+.stat-label { font-size: 0.85rem; opacity: 0.6; margin-top: 0.5rem; }
+
+.scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.5; z-index: 2; }
+.scroll-hint .line { width: 1px; height: 40px; background: var(--graphite); position: relative; overflow: hidden; }
+.scroll-hint .line::after { content: ''; position: absolute; top: -100%; left: 0; right: 0; height: 100%; background: var(--lime); animation: scrollLine 2s infinite; }
+@keyframes scrollLine { 0% { top: -100%; } 100% { top: 100%; } }
+
+@media (max-width: 768px) {
+  .hero-bottom { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-stats { gap: 2rem; flex-wrap: wrap; }
+  .stat-value { font-size: 2rem; }
+  .scroll-hint { display: none; }
+}
+
+/* ========== MARQUEE ========== */
+.marquee { background: var(--graphite); color: var(--cream); padding: 1.5rem 0; overflow: hidden; white-space: nowrap; border-top: 1px solid rgba(245,240,232,0.1); border-bottom: 1px solid rgba(245,240,232,0.1); }
+.marquee-track { display: inline-flex; gap: 3rem; animation: marquee 30s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
+.marquee-item { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 3rem; }
+.marquee-item::after { content: ''; width: 10px; height: 10px; background: var(--lime); border-radius: 50%; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ========== ABOUT ========== */
+.about { padding: 8rem 0; position: relative; }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+.about-visual { position: relative; aspect-ratio: 4/5; border-radius: 24px; overflow: hidden; background: linear-gradient(160deg, var(--electric), var(--pink), var(--lime)); display: flex; align-items: center; justify-content: center; }
+.about-visual::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%), radial-gradient(circle at 70% 70%, rgba(255,255,255,0.2), transparent 50%); }
+.about-visual-inner { position: relative; z-index: 1; text-align: center; color: var(--cream); padding: 2rem; }
+.about-visual-inner .big-num { font-size: 8rem; font-weight: 900; letter-spacing: -0.06em; line-height: 0.9; }
+.about-visual-inner .big-label { font-size: 1rem; font-weight: 500; margin-top: 1rem; letter-spacing: 0.05em; }
+.about-visual .deco { position: absolute; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
+.about-visual .deco-1 { width: 200px; height: 200px; top: -40px; left: -40px; }
+.about-visual .deco-2 { width: 300px; height: 300px; bottom: -80px; right: -80px; }
+
+.about-content h2 { margin-bottom: 2rem; }
+.about-list { list-style: none; margin-top: 2.5rem; display: grid; gap: 1.25rem; }
+.about-list li { display: flex; gap: 1rem; align-items: flex-start; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(26,26,26,0.1); }
+.about-list .num { flex-shrink: 0; width: 32px; height: 32px; background: var(--iridescent-soft); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+.about-list .text strong { display: block; font-size: 1.05rem; margin-bottom: 0.25rem; }
+.about-list .text span { font-size: 0.95rem; opacity: 0.7; }
+
+@media (max-width: 900px) {
+  .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .about-visual { aspect-ratio: 1; max-width: 400px; margin: 0 auto; }
+  .about-visual-inner .big-num { font-size: 5rem; }
+}
+
+/* ========== SERVICES ========== */
+.services { padding: 8rem 0; background: var(--cream-2); }
+.services-header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 4rem; gap: 2rem; flex-wrap: wrap; }
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+.service-card { background: var(--cream); padding: 2.5rem; border-radius: 24px; position: relative; overflow: hidden; transition: transform 0.4s cubic-bezier(.22,1,.36,1), box-shadow 0.4s; border: 1px solid rgba(26,26,26,0.06); }
+.service-card::before { content: ''; position: absolute; inset: 0; background: var(--iridescent-soft); opacity: 0; transition: opacity 0.4s; z-index: 0; }
+.service-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -20px rgba(26,26,26,0.2); }
+.service-card:hover::before { opacity: 1; }
+.service-card > * { position: relative; z-index: 1; }
+.service-icon { width: 56px; height: 56px; background: var(--graphite); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--lime); font-size: 1.5rem; margin-bottom: 1.5rem; transition: transform 0.4s; }
+.service-card:hover .service-icon { transform: rotate(-8deg) scale(1.1); }
+.service-card h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+.service-card p { font-size: 0.95rem; opacity: 0.7; line-height: 1.6; margin-bottom: 1.5rem; }
+.service-price { font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.service-price .dot { width: 6px; height: 6px; background: var(--electric); border-radius: 50%; }
+
+/* ========== BEFORE / AFTER (ИСПРАВЛЕНО) ========== */
+.beforeafter { padding: 8rem 0; background: var(--graphite); color: var(--cream); }
+.beforeafter .eyebrow { color: var(--cream); }
+.beforeafter .section-title { color: var(--cream); }
+.beforeafter .section-sub { color: rgba(245,240,232,0.7); }
+.ba-wrap { margin-top: 4rem; position: relative; max-width: 900px; margin-left: auto; margin-right: auto; }
+.ba-container { position: relative; aspect-ratio: 16/10; border-radius: 24px; overflow: hidden; user-select: none; touch-action: none; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6); background: #000; }
+
+.ba-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
+/* Теперь «После» — это нижний слой, а «До» — верхний, который обрезается */
+.ba-after { z-index: 1; } 
+.ba-before { clip-path: inset(0 50% 0 0); transition: clip-path 0.05s; z-index: 2; }
+
+.ba-handle { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--cream); transform: translateX(-50%); z-index: 10; pointer-events: none; }
+.ba-handle::before { content: ''; position: absolute; top: 50%; left: 50%; width: 60px; height: 60px; background: var(--cream); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 8px 30px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
+.ba-handle::after { content: '⟨⟩'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: 900; color: var(--graphite); z-index: 1; }
+.ba-labels { display: flex; justify-content: space-between; margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; }
+.ba-thumbs { display: flex; gap: 1rem; margin-top: 3rem; justify-content: center; flex-wrap: wrap; }
+.ba-thumb { width: 80px; height: 80px; border-radius: 12px; background: rgba(245,240,232,0.1); border: 2px solid transparent; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; font-weight: 700; color: rgba(245,240,232,0.5); font-size: 0.85rem; }
+.ba-thumb:hover { background: rgba(245,240,232,0.2); }
+.ba-thumb.active { border-color: var(--lime); background: rgba(200,255,61,0.1); color: var(--lime); }
+
+/* ========== TECH ========== */
+.tech { padding: 8rem 0; }
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 4rem; }
+.tech-item { padding: 2rem 0; border-top: 1px solid rgba(26,26,26,0.15); position: relative; }
+.tech-num { font-size: 0.85rem; font-weight: 600; opacity: 0.4; letter-spacing: 0.1em; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+.tech-num::before { content: ''; width: 6px; height: 6px; background: var(--electric); border-radius: 50%; }
+.tech-item h3 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+.tech-item p { font-size: 0.95rem; opacity: 0.7; line-height: 1.6; }
+
+/* ========== DOCTORS ========== */
+.doctors { padding: 8rem 0; background: var(--cream-2); }
+.doctors-header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 4rem; gap: 2rem; flex-wrap: wrap; }
+.doctors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
+
+.doctor-card { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 3/4; background: var(--graphite); cursor: pointer; }
+.doctor-photo { position: absolute; inset: 0; background-size: cover; background-position: center top; transition: transform 0.7s cubic-bezier(.22,1,.36,1); }
+.doctor-card:hover .doctor-photo { transform: scale(1.08); }
+
+.doctor-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: var(--cream); z-index: 2; }
+.doctor-role { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--lime); margin-bottom: 0.5rem; font-weight: 600; }
+.doctor-name { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.doctor-exp { font-size: 0.9rem; opacity: 0.7; max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(.22,1,.36,1); line-height: 1.4; }
+.doctor-card:hover .doctor-exp { max-height: 100px; }
+
+/* Баннер команды (добавлен цвет на случай, если фото не загрузится) */
+.team-banner { border-radius: 24px; overflow: hidden; position: relative; background: var(--graphite-2); }
+.team-banner-img { width: 100%; height: 450px; background-color: var(--graphite); background-size: cover; background-position: center; background-repeat: no-repeat; }
+.team-banner-content { padding: 3rem; color: var(--cream); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; }
+.team-banner-content h3 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.team-banner-content p { opacity: 0.7; max-width: 500px; font-size: 1.1rem; }
+
+@media (max-width: 768px) {
+  .team-banner-img { height: 250px; }
+  .team-banner-content { padding: 2rem; }
+  .team-banner-content h3 { font-size: 1.5rem; }
+}
+
+/* ========== PRICES ========== */
+.prices { padding: 8rem 0; }
+.prices-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-bottom: 4rem; align-items: end; }
+.prices-list { display: grid; gap: 0; }
+.price-row { display: grid; grid-template-columns: 1fr auto; gap: 2rem; padding: 1.5rem 0; border-bottom: 1px solid rgba(26,26,26,0.1); align-items: center; transition: padding-left 0.3s, background 0.3s; }
+.price-row:hover { padding-left: 1.5rem; background: linear-gradient(90deg, rgba(200,255,61,0.1), transparent); }
+.price-name strong { display: block; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; }
+.price-name span { font-size: 0.85rem; opacity: 0.6; }
+.price-value { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.price-badge { display: inline-block; margin-left: 0.75rem; padding: 0.2rem 0.6rem; background: var(--lime); color: var(--graphite); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 4px; vertical-align: middle; }
+@media (max-width: 768px) { .prices-intro { grid-template-columns: 1fr; gap: 2rem; } .price-row { grid-template-columns: 1fr; gap: 0.5rem; } }
+
+/* ========== NEWS ========== */
+.news { padding: 8rem 0; background: var(--graphite); color: var(--cream); }
+.news .eyebrow { color: var(--cream); }
+.news-header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 3rem; gap: 2rem; flex-wrap: wrap; }
+.news-title { color: var(--cream); }
+.news-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.news-filter { padding: 0.6rem 1.4rem; border: 1px solid rgba(245,240,232,0.25); background: transparent; color: var(--cream); border-radius: 40px; font-size: 0.9rem; font-family: inherit; transition: all 0.3s; font-weight: 500; }
+.news-filter:hover { border-color: var(--lime); color: var(--lime); }
+.news-filter.active { background: var(--lime); color: var(--graphite); border-color: var(--lime); }
+.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.news-card { background: rgba(245,240,232,0.04); border: 1px solid rgba(245,240,232,0.1); border-radius: 20px; padding: 2rem; transition: all 0.4s cubic-bezier(.22,1,.36,1); opacity: 0; transform: translateY(30px); position: relative; overflow: hidden; }
+.news-card.visible { opacity: 1; transform: translateY(0); }
+.news-card:hover { border-color: var(--lime); background: rgba(245,240,232,0.07); transform: translateY(-4px); }
+.news-card .tag { display: inline-block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--lime); margin-bottom: 1rem; font-weight: 600; }
+.news-card h3 { font-size: 1.35rem; margin-bottom: 0.75rem; line-height: 1.25; font-weight: 700; }
+.news-card p { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-bottom: 1.5rem; }
+.news-card .date { font-size: 0.8rem; opacity: 0.5; }
+.news-card .read-more { position: absolute; bottom: 2rem; right: 2rem; opacity: 0; transition: opacity 0.3s, transform 0.3s; font-size: 0.85rem; font-weight: 600; color: var(--lime); }
+.news-card:hover .read-more { opacity: 1; transform: translateX(4px); }
+
+/* ========== REVIEWS ========== */
+.reviews { padding: 8rem 0; }
+.reviews-intro { margin-bottom: 4rem; }
+.reviews-track-wrap { overflow: hidden; position: relative; }
+.reviews-track-wrap::before, .reviews-track-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 100px; z-index: 2; pointer-events: none; }
+.reviews-track-wrap::before { left: 0; background: linear-gradient(to right, var(--cream), transparent); }
+.reviews-track-wrap::after { right: 0; background: linear-gradient(to left, var(--cream), transparent); }
+.reviews-track { display: flex; gap: 1.5rem; animation: scrollReviews 40s linear infinite; width: max-content; }
+.reviews-track:hover { animation-play-state: paused; }
+@keyframes scrollReviews { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.review-card { background: var(--cream-2); padding: 2.5rem; border-radius: 24px; width: 420px; flex-shrink: 0; display: flex; flex-direction: column; gap: 1.5rem; }
+.review-stars { display: flex; gap: 2px; color: var(--electric); font-size: 1.1rem; }
+.review-text { font-size: 1.05rem; line-height: 1.6; }
+.review-author { display: flex; align-items: center; gap: 1rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(26,26,26,0.1); }
+.review-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--iridescent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--cream); font-size: 1rem; }
+.review-author strong { display: block; font-size: 0.95rem; }
+.review-author span { font-size: 0.8rem; opacity: 0.6; }
+@media (max-width: 500px) { .review-card { width: 300px; padding: 1.75rem; } }
+
+/* ========== FAQ ========== */
+.faq { padding: 8rem 0; background: var(--cream-2); }
+.faq-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 5rem; }
+.faq-list { display: flex; flex-direction: column; }
+.faq-item { border-bottom: 1px solid rgba(26,26,26,0.15); }
+.faq-question { width: 100%; background: none; border: none; padding: 1.75rem 0; display: flex; justify-content: space-between; align-items: center; gap: 2rem; text-align: left; font-family: inherit; font-size: 1.15rem; font-weight: 700; color: var(--graphite); letter-spacing: -0.01em; transition: color 0.3s; }
+.faq-question:hover { color: var(--electric); }
+.faq-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--graphite); color: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: transform 0.4s cubic-bezier(.22,1,.36,1), background 0.3s; font-weight: 400; }
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--lime); color: var(--graphite); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(.22,1,.36,1); }
+.faq-answer-inner { padding: 0 0 1.75rem; font-size: 1rem; line-height: 1.65; opacity: 0.75; max-width: 600px; }
+@media (max-width: 900px) { .faq-layout { grid-template-columns: 1fr; gap: 3rem; } }
+
+/* ========== CONTACT ========== */
+.contact { padding: 8rem 0; background: var(--graphite); color: var(--cream); position: relative; overflow: hidden; }
+.contact-shapes { position: absolute; inset: 0; pointer-events: none; opacity: 0.15; }
+.contact-shapes .shape { position: absolute; border-radius: 50%; filter: blur(100px); }
+.contact-shapes .s1 { width: 40vw; height: 40vw; background: var(--electric); top: -10vw; left: -10vw; }
+.contact-shapes .s2 { width: 30vw; height: 30vw; background: var(--pink); bottom: -10vw; right: -5vw; }
+.contact-shapes .s3 { width: 25vw; height: 25vw; background: var(--lime); top: 40%; right: 30%; }
+.contact-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.contact-content h2 { color: var(--cream); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; margin-bottom: 2rem; }
+.contact-content > p { font-size: 1.1rem; opacity: 0.7; margin-bottom: 3rem; max-width: 400px; line-height: 1.6; }
+.contact-info { display: grid; gap: 1.75rem; }
+.contact-info-item { display: flex; gap: 1rem; align-items: flex-start; }
+.contact-info-icon { width: 44px; height: 44px; background: rgba(245,240,232,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.contact-info-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 0.25rem; }
+.contact-info-value { font-size: 1.05rem; font-weight: 500; }
+
+.form { background: rgba(245,240,232,0.04); border: 1px solid rgba(245,240,232,0.1); border-radius: 24px; padding: 3rem; backdrop-filter: blur(20px); }
+.form h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+.form > p { font-size: 0.9rem; opacity: 0.6; margin-bottom: 2rem; }
+.form-group { margin-bottom: 1.25rem; }
+.form-group label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5; margin-bottom: 0.5rem; font-weight: 600; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 1rem 1.25rem; background: rgba(245,240,232,0.06); border: 1px solid rgba(245,240,232,0.15); border-radius: 12px; color: var(--cream); font-family: inherit; font-size: 1rem; transition: border-color 0.3s, background 0.3s; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--lime); background: rgba(245,240,232,0.1); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group select option { color: var(--graphite); }
+.form-submit { width: 100%; padding: 1.2rem; background: var(--lime); color: var(--graphite); border: none; border-radius: 12px; font-family: inherit; font-size: 1rem; font-weight: 700; margin-top: 0.5rem; transition: all 0.3s; position: relative; overflow: hidden; }
+.form-submit:hover { background: var(--cream); transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(200,255,61,0.4); }
+.form-submit:active { transform: translateY(0); }
+.form-note { font-size: 0.75rem; opacity: 0.4; margin-top: 1rem; line-height: 1.5; text-align: center; }
+.form-success { display: none; text-align: center; padding: 2rem 0; }
+.form-success.show { display: block; }
+.form-success-icon { width: 64px; height: 64px; background: var(--lime); color: var(--graphite); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem; animation: popIn 0.5s cubic-bezier(.22,1,.36,1); }
+@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+@media (max-width: 900px) { .contact-inner { grid-template-columns: 1fr; gap: 3rem; } .form { padding: 2rem; } }
+
+/* ========== FOOTER ========== */
+.footer { background: #0F0F0F; color: var(--cream); padding: 4rem 0 2rem; }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid rgba(245,240,232,0.1); }
+.footer-brand .logo { color: var(--cream); font-size: 1.5rem; margin-bottom: 1rem; }
+.footer-brand p { opacity: 0.5; font-size: 0.9rem; line-height: 1.6; max-width: 300px; margin-bottom: 1.5rem; }
+.footer-social { display: flex; gap: 0.75rem; }
+.footer-social a { width: 40px; height: 40px; border-radius: 50%; background: rgba(245,240,232,0.08); display: flex; align-items: center; justify-content: center; color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.3s; }
+.footer-social a:hover { background: var(--lime); color: var(--graphite); transform: translateY(-2px); }
+.footer-col h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 1.25rem; font-weight: 600; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-col a { color: var(--cream); text-decoration: none; font-size: 0.95rem; opacity: 0.75; transition: opacity 0.2s, color 0.2s; }
+.footer-col a:hover { opacity: 1; color: var(--lime); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 2rem; font-size: 0.8rem; opacity: 0.4; flex-wrap: wrap; gap: 1rem; }
+@media (max-width: 900px) { .footer-top { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .footer-top { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark"></div>
+      BEAUTY SMILE
+    </a>
+    <ul class="nav">
+      <li><a href="#about">О клинике</a></li>
+      <li><a href="#services">Услуги</a></li>
+      <li><a href="#doctors">Врачи</a></li>
+      <li><a href="#prices">Цены</a></li>
+      <li><a href="#news">Новости</a></li>
+      <li><a href="#contact">Контакты</a></li>
+    </ul>
+    <div class="header-actions">
+      <a href="#contact" class="btn header-cta"><span>Записаться</span></a>
+      <button class="burger" id="burger" aria-label="Меню">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about">О клинике</a>
+  <a href="#services">Услуги</a>
+  <a href="#doctors">Врачи</a>
+  <a href="#prices">Цены</a>
+  <a href="#news">Новости</a>
+  <a href="#contact">Контакты</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="hero-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Принимаем новых пациентов · Москва
+    </div>
+    <h1 class="hero-title">
+      <span class="line"><span class="word">ИНЖЕНЕРИЯ</span></span>
+      <span class="line"><span class="word accent">УЛЫБКИ</span></span>
+      <span class="line"><span class="word">БЕЗ КОМПРОМИССОВ</span></span>
+    </h1>
+    <div class="hero-bottom">
+      <p class="hero-desc">
+        Стоматология премиум-класса с 3D-планированием, навигационной хирургией
+        и цифровым протезированием. Берёмся за случаи, от которых отказываются другие.
+      </p>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn"><span>Записаться на 3D-диагностику</span><span class="arrow">→</span></a>
+        <a href="#services" class="btn btn-outline"><span>Наши услуги</span></a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-value"><span data-count="14">0</span><span class="suffix">+</span></div>
+        <div class="stat-label">лет на рынке</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value"><span data-count="8200">0</span><span class="suffix">+</span></div>
+        <div class="stat-label">довольных пациентов</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">4.9<span class="suffix">/5</span></div>
+        <div class="stat-label">рейтинг на Яндекс.Картах</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value"><span data-count="98">0</span><span class="suffix">%</span></div>
+        <div class="stat-label">приживаемость имплантов</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="line"></div>
+  </div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee">
+  <div class="marquee-track">
+    <div class="marquee-item">3D-навигационная хирургия</div>
+    <div class="marquee-item">Цифровые оттиски</div>
+    <div class="marquee-item">All-on-4 / All-on-6</div>
+    <div class="marquee-item">Виниры E.max</div>
+    <div class="marquee-item">Имплантация Straumann</div>
+    <div class="marquee-item">Лечение во сне</div>
+    <div class="marquee-item">3D-навигационная хирургия</div>
+    <div class="marquee-item">Цифровые оттиски</div>
+    <div class="marquee-item">All-on-4 / All-on-6</div>
+    <div class="marquee-item">Виниры E.max</div>
+    <div class="marquee-item">Имплантация Straumann</div>
+    <div class="marquee-item">Лечение во сне</div>
+  </div>
+</div>
+
+<!-- ============ ABOUT ============ -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-visual reveal">
+        <div class="deco deco-1"></div>
+        <div class="deco deco-2"></div>
+        <div class="about-visual-inner">
+          <div class="big-num">2009</div>
+          <div class="big-label">год основания клиники</div>
+        </div>
+      </div>
+      <div class="about-content reveal">
+        <span class="eyebrow">О клинике</span>
+        <h2 class="section-title">Не клиника.<br>Инженерия улыбки.</h2>
+        <p class="section-sub">
+          Мы не продаём «голливудские улыбки». Мы решаем сложные клинические задачи
+          через цифровое планирование и доказуемый результат — и показываем каждый этап.
+        </p>
+        <ul class="about-list">
+          <li>
+            <span class="num">01</span>
+            <div class="text">
+              <strong>Собственная цифровая лаборатория</strong>
+              <span>Сканер, 3D-принтер и фрезер — не зависим от подрядчиков</span>
+            </div>
+          </li>
+          <li>
+            <span class="num">02</span>
+            <div class="text">
+              <strong>Только сертифицированные импланты</strong>
+              <span>Straumann, Nobel Biocare — с гарантией производителя</span>
+            </div>
+          </li>
+          <li>
+            <span class="num">03</span>
+            <div class="text">
+              <strong>Пожизненная гарантия на конструкции</strong>
+              <span>При соблюдении графика профилактических осмотров</span>
+            </div>
+          </li>
+          <li>
+            <span class="num">04</span>
+            <div class="text">
+              <strong>Врачи со специализацией</strong>
+              <span>Хирург — не терапевт. Ортопед — не хирург. Каждый на своём</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section class="services" id="services">
+  <div class="container">
+    <div class="services-header reveal">
+      <div>
+        <span class="eyebrow">Услуги</span>
+        <h2 class="section-title">Полный цикл.<br>Одна клиника.</h2>
+      </div>
+      <p class="section-sub">
+        От профилактической гигиены до сложной имплантации с навигацией.
+        Всё — в одном месте, без передачи между клиниками.
+      </p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-icon">◉</div>
+        <h3>Имплантация</h3>
+        <p>All-on-4, All-on-6, навигационная установка. Цифровой хирургический шаблон в день диагностики.</p>
+        <div class="service-price"><span class="dot"></span>от 65 000 ₽</div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">◇</div>
+        <h3>Ортопедия</h3>
+        <p>Коронки, виниры, вкладки из дисиликата лития и циркония. Точность цифрового сканирования.</p>
+        <div class="service-price"><span class="dot"></span>от 25 000 ₽</div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">✦</div>
+        <h3>Эстетика</h3>
+        <p>Виниры E.max, отбеливание, реставрация фронтальной группы. Планирование улыбки в DSD.</p>
+        <div class="service-price"><span class="dot"></span>от 30 000 ₽</div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">⚕</div>
+        <h3>Терапия</h3>
+        <p>Лечение каналов под микроскопом, реставрации, лечение под седацией. Без боли и спешки.</p>
+        <div class="service-price"><span class="dot"></span>от 8 000 ₽</div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">❋</div>
+        <h3>Гигиена</h3>
+        <p>Профессиональная гигиена с Air Flow, ремотерапия, лечение дёсен. Основа долгой службы конструкции.</p>
+        <div class="service-price"><span class="dot"></span>от 5 500 ₽</div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">✕</div>
+        <h3>Хирургия</h3>
+        <p>Удаление зубов, костная пластика, синус-лифтинг. Атравматично, с сохранением объёма.</p>
+        <div class="service-price"><span class="dot"></span>от 4 500 ₽</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BEFORE / AFTER ============ -->
+<section class="beforeafter" id="beforeafter">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="eyebrow">Результат</span>
+      <h2 class="section-title">Потяните.<br>Убедитесь сами.</h2>
+      <p class="section-sub" style="margin: 0 auto;">
+        Реальные кейсы пациентов с согласием на публикацию. Фото до и после — без ретуши и монтажа.
+      </p>
+    </div>
+    <div class="ba-wrap reveal">
+      <div class="ba-container" id="baContainer">
+        <!-- 
+          Обратите внимание: ba-before теперь имеет z-index: 2 (верхний слой),
+          а ba-after - z-index: 1 (нижний слой). 
+        -->
+        <img class="ba-img ba-after" id="baAfterImg" src="img/кейс-1-после.jpg" alt="После" draggable="false">
+        <img class="ba-img ba-before" id="baBeforeImg" src="img/кейс-1-до.jpg" alt="До" draggable="false">
+        <div class="ba-handle" id="baHandle"></div>
+      </div>
+      <div class="ba-labels">
+        <span>До</span>
+        <span>После</span>
+      </div>
+      <div class="ba-thumbs">
+        <button class="ba-thumb active" data-case="1">Кейс 01</button>
+        <button class="ba-thumb" data-case="2">Кейс 02</button>
+        <button class="ba-thumb" data-case="3">Кейс 03</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECH ============ -->
+<section class="tech">
+  <div class="container">
+    <div class="reveal">
+      <span class="eyebrow">Технологии</span>
+      <h2 class="section-title">Не словами.<br>Оборудованием.</h2>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-item reveal">
+        <div class="tech-num">01 / Сканер</div>
+        <h3>3Shape TRIOS</h3>
+        <p>Цифровой оттиск за 2 минуты вместо ложки с пастой. Точность до 20 микрон, комфорт без рвотного рефлекса.</p>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-num">02 / Томограф</div>
+        <h3>Компьютерная томография</h3>
+        <p>3D-снимок с дозой в 5 раз ниже плёночной. Планирование каждого винта импланта до операции.</p>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-num">03 / Хирургия</div>
+        <h3>Навигационные шаблоны</h3>
+        <p>Печатаем шаблон на собственном 3D-принтере. Хирург ставит имплант точно по плану, а не «на глаз».</p>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-num">04 / Микроскоп</div>
+        <h3>Zeiss и Leica</h3>
+        <p>Лечение каналов под увеличением в 25 раз. Находим даже те каналы, которые не видны на снимке.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOCTORS ============ -->
+<section class="doctors" id="doctors">
+  <div class="container">
+    <div class="doctors-header reveal">
+      <div>
+        <span class="eyebrow">Врачи</span>
+        <h2 class="section-title">Люди,<br>а не должности.</h2>
+      </div>
+      <p class="section-sub">
+        Каждый — специалист в своём узком направлении с профильной специализацией и портфолио сложных кейсов.
+      </p>
+    </div>
+    
+    <div class="doctors-grid">
+      <!-- Врач 1 -->
+      <div class="doctor-card reveal">
+        <div class="doctor-photo" style="background-image: url('https://optim.tildacdn.com/tild3530-3135-4434-a161-326430643238/-/resize/340x/-/format/webp/3.jpg.webp');"></div>
+        <div class="doctor-info">
+          <div class="doctor-role">Хирург-имплантолог</div>
+          <div class="doctor-name">Сотнич Алексей Юрьевич</div>
+          <div class="doctor-exp">Главный врач · 15 лет практики · 3200+ установленных имплантов</div>
+        </div>
+      </div>
+      
+      <!-- Врач 2 -->
+      <div class="doctor-card reveal">
+        <div class="doctor-photo" style="background-image: url('https://optim.tildacdn.com/tild6631-3330-4630-a362-376431396431/-/resize/340x/-/format/webp/__.jpg.webp');"></div>
+        <div class="doctor-info">
+          <div class="doctor-role">Ортопед</div>
+          <div class="doctor-name">Джамалова Азада Бирхамиддиновна</div>
+          <div class="doctor-exp">12 лет практики · Цифровое протезирование · E.max, цирконий</div>
+        </div>
+      </div>
+      
+      <!-- Врач 3 -->
+      <div class="doctor-card reveal">
+        <div class="doctor-photo" style="background-image: url('https://optim.tildacdn.com/tild6365-6430-4633-a234-633133303766/-/resize/340x/-/format/webp/2.jpg.webp');"></div>
+        <div class="doctor-info">
+          <div class="doctor-role">Терапевт-эндодонтист</div>
+          <div class="doctor-name">Султабеков Арген Болотбекович</div>
+          <div class="doctor-exp">10 лет практики · Лечение под микроскопом · Повторное лечение</div>
+        </div>
+      </div>
+      
+      <!-- Врач 4 -->
+      <div class="doctor-card reveal">
+        <div class="doctor-photo" style="background-image: url('https://optim.tildacdn.com/tild3236-6166-4538-b632-313735303935/-/resize/340x/-/format/webp/4.jpg.webp');"></div>
+        <div class="doctor-info">
+          <div class="doctor-role">Стоматолог-хирург</div>
+          <div class="doctor-name">Сотнич Алексей Юревич</div>
+          <div class="doctor-exp">Специализация: сложные случаи, костная пластика, синус-лифтинг</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Блок команды -->
+    <div class="team-banner reveal">
+      <div class="team-banner-img" style="background-image: url('img/team.jpg');"></div>
+      <div class="team-banner-content">
+        <div>
+          <h3>Команда, которая делает улыбки</h3>
+          <p>Врачи и ассистенты клиники Beauty Smile. Слаженная работа каждого специалиста — залог вашего комфорта и результата.</p>
+        </div>
+        <a href="#contact" class="btn btn-outline" style="border-color: var(--cream); color: var(--cream);"><span>Записаться к врачу</span></a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ PRICES ============ -->
+<section class="prices" id="prices">
+  <div class="container">
+    <div class="prices-intro reveal">
+      <div>
+        <span class="eyebrow">Цены</span>
+        <h2 class="section-title">Прозрачно.<br>Без сюрпризов.</h2>
+      </div>
+      <p class="section-sub">
+        Точную смету составляем после диагностики и фиксируем в договоре. Никаких «в процессе выяснилось».
+      </p>
+    </div>
+    <div class="prices-list reveal">
+      <div class="price-row">
+        <div class="price-name">
+          <strong>3D-диагностика <span class="price-badge">Популярно</span></strong>
+          <span>Компьютерная томография + осмотр + план лечения</span>
+        </div>
+        <div class="price-value">2 500 ₽</div>
+      </div>
+      <div class="price-row">
+        <div class="price-name">
+          <strong>Имплантация Straumann</strong>
+          <span>Имплант + операция + формирователь</span>
+        </div>
+        <div class="price-value">от 65 000 ₽</div>
+      </div>
+      <div class="price-row">
+        <div class="price-name">
+          <strong>Винир E.max</strong>
+          <span>Керамическая реставрация под ключ</span>
+        </div>
+        <div class="price-value">от 30 000 ₽</div>
+      </div>
+      <div class="price-row">
+        <div class="price-name">
+          <strong>Коронка из циркония</strong>
+          <span>Цифровой оттиск, изготовление в собственной лаборатории</span>
+        </div>
+        <div class="price-value">от 25 000 ₽</div>
+      </div>
+      <div class="price-row">
+        <div class="price-name">
+          <strong>Профессиональная гигиена</strong>
+          <span>Air Flow + УЗ-скейлинг + полировка + фторирование</span>
+        </div>
+        <div class="price-value">5 500 ₽</div>
+      </div>
+      <div class="price-row">
+        <div class="price-name">
+          <strong>Лечение каналов под микроскопом</strong>
+          <span>Один канал · С гарантией 3 года</span>
+        </div>
+        <div class="price-value">от 8 000 ₽</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWS ============ -->
+<section class="news" id="news">
+  <div class="container">
+    <div class="news-header reveal">
+      <div>
+        <span class="eyebrow">Новости</span>
+        <h2 class="section-title news-title">Живая клиника</h2>
+      </div>
+      <div class="news-filters">
+        <button class="news-filter active" data-filter="all">Все</button>
+        <button class="news-filter" data-filter="tech">Технологии</button>
+        <button class="news-filter" data-filter="case">Кейсы</button>
+        <button class="news-filter" data-filter="life">Жизнь клиники</button>
+        <button class="news-filter" data-filter="tips">Советы</button>
+      </div>
+    </div>
+    <div class="news-grid" id="newsGrid"></div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section class="reviews">
+  <div class="container">
+    <div class="reviews-intro reveal">
+      <span class="eyebrow">Отзывы</span>
+      <h2 class="section-title">Говорят<br>пациенты.</h2>
+    </div>
+  </div>
+  <div class="reviews-track-wrap">
+    <div class="reviews-track" id="reviewsTrack"></div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq">
+  <div class="container">
+    <div class="faq-layout">
+      <div class="reveal">
+        <span class="eyebrow">Вопросы</span>
+        <h2 class="section-title">Отвечаем<br>на главное.</h2>
+        <p class="section-sub" style="margin-top: 2rem;">
+          Не нашли свой вопрос? Напишите нам в мессенджер — отвечаем в течение 15 минут.
+        </p>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-question">Больно ли ставить имплант?<span class="faq-icon">+</span></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Сама операция проходит под местной анестезией и пациент не чувствует боли. В первые 2-3 дня возможен небольшой дискомфорт, который снимается стандартными обезболивающими. При желании доступно лечение под седацией.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Сколько служит имплант?<span class="faq-icon">+</span></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Средний срок службы имплантов Straumann и Nobel Biocare — от 20 лет и пожизненно при соблюдении гигиены и профилактических осмотров раз в 6 месяцев. Мы даём пожизненную гарантию на сам имплант.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Можно ли в рассрочку?<span class="faq-icon">+</span></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Да, работаем с рассрочкой 0% на 6, 12 и 24 месяца через банки-партнёры. Оформление занимает 15 минут, не требует справок о доходах. Также доступна оплата по этапам лечения.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Что входит в 3D-диагностику?<span class="faq-icon">+</span></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Компьютерная томография (3D-снимок), цифровой оттиск, осмотр врача, составление плана лечения со сметой. Занимает около 60 минут. Результаты остаются у вас на руки в цифровом виде.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Работаете ли вы с другими клиниками?<span class="faq-icon">+</span></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Да, мы берёмся за сложные случаи после неудачного лечения в других клиниках: перелечивание каналов, замена имплантов, исправление ортопедических конструкций. Проводим консультацию с полной диагностикой.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact">
+  <div class="contact-shapes">
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+    <div class="shape s3"></div>
+  </div>
+  <div class="container">
+    <div class="contact-inner">
+      <div class="contact-content reveal">
+        <span class="eyebrow">Записаться</span>
+        <h2>Первый шаг —<br>3D-диагностика.</h2>
+        <p>Оставьте заявку — перезвоним в течение 15 минут, подберём удобное время и врача под вашу задачу.</p>
+        <div class="contact-info">
+          <div class="contact-info-item">
+            <div class="contact-info-icon">☎</div>
+            <div>
+              <div class="contact-info-label">Телефон</div>
+              <div class="contact-info-value">+7 (495) 123-45-67</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">◉</div>
+            <div>
+              <div class="contact-info-label">Адрес</div>
+              <div class="contact-info-value">Москва, ул. Тверская, 18, к. 1</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">◔</div>
+            <div>
+              <div class="contact-info-label">Часы работы</div>
+              <div class="contact-info-value">Ежедневно 9:00–21:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <form class="form reveal" id="bookingForm" novalidate>
+        <div id="formContent">
+          <h3>Оставьте заявку</h3>
+          <p>Перезвоним в течение 15 минут в рабочее время.</p>
+          <div class="form-group">
+            <label for="name">Имя</label>
+            <input type="text" id="name" name="name" placeholder="Как к вам обращаться" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Телефон</label>
+            <input type="tel" id="phone" name="phone" placeholder="+7 (___) ___-__-__" required>
+          </div>
+          <div class="form-group">
+            <label for="service">Что интересует</label>
+            <select id="service" name="service">
+              <option value="">Не выбрано</option>
+              <option>Имплантация</option>
+              <option>Ортопедия</option>
+              <option>Эстетика / виниры</option>
+              <option>Терапия</option>
+              <option>Гигиена</option>
+              <option>Хирургия</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Комментарий (необязательно)</label>
+            <textarea id="message" name="message" placeholder="Опишите коротко задачу"></textarea>
+          </div>
+          <button type="submit" class="form-submit">Записаться на диагностику →</button>
+          <p class="form-note">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</p>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <div class="form-success-icon">✓</div>
+          <h3>Заявка отправлена</h3>
+          <p style="opacity:0.7;margin-top:0.75rem;">Мы свяжемся с вами в течение 15 минут и подтвердим запись.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo"><div class="logo-mark"></div>BEAUTY SMILE</a>
+        <p>Стоматология премиум-класса с цифровым подходом. Инженерия улыбки без компромиссов.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Telegram">TG</a>
+          <a href="#" aria-label="VK">VK</a>
+          <a href="#" aria-label="WhatsApp">WA</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Услуги</h4>
+        <ul>
+          <li><a href="#services">Имплантация</a></li>
+          <li><a href="#services">Ортопедия</a></li>
+          <li><a href="#services">Эстетика</a></li>
+          <li><a href="#services">Терапия</a></li>
+          <li><a href="#services">Гигиена</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>О клинике</h4>
+        <ul>
+          <li><a href="#about">О нас</a></li>
+          <li><a href="#doctors">Врачи</a></li>
+          <li><a href="#prices">Цены</a></li>
+          <li><a href="#news">Новости</a></li>
+          <li><a href="#contact">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Контакты</h4>
+        <ul>
+          <li><a href="tel:+74951234567">+7 (495) 123-45-67</a></li>
+          <li><a href="mailto:hello@beautysmile.ru">hello@beautysmile.ru</a></li>
+          <li><a href="#contact">Москва, Тверская, 18</a></li>
+          <li><a href="#contact">Ежедневно 9:00–21:00</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 BEAUTY SMILE. Все права защищены.</span>
+      <span>Лицензия ЛО-77-01-012345 · Политика конфиденциальности</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============ CUSTOM CURSOR ============
+  const cursor = document.getElementById('cursor');
+  let mouseX = 0, mouseY = 0;
+  let cursorX = 0, cursorY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function animateCursor() {
+    cursorX += (mouseX - cursorX) * 0.2;
+    cursorY += (mouseY - cursorY) * 0.2;
+    cursor.style.left = cursorX + 'px';
+    cursor.style.top = cursorY + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  document.querySelectorAll('a, button, .service-card, .news-card, .doctor-card, input, textarea, select').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  const baContainer = document.getElementById('baContainer');
+  if (baContainer) {
+    baContainer.addEventListener('mouseenter', () => cursor.classList.add('text'));
+    baContainer.addEventListener('mouseleave', () => cursor.classList.remove('text'));
+  }
+
+  // ============ HEADER SCROLL ============
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) header.classList.add('scrolled');
+    else header.classList.remove('scrolled');
+  });
+
+  // ============ MOBILE MENU ============
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('active');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      burger.classList.remove('active');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ============ SCROLL REVEAL ============
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ============ COUNTER ANIMATION ============
+  const counters = document.querySelectorAll('[data-count]');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.dataset.count);
+        const duration = 1800;
+        const start = performance.now();
+        
+        function update(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.floor(eased * target);
+          el.textContent = current >= 1000 ? current.toLocaleString('ru-RU') : current;
+          if (progress < 1) requestAnimationFrame(update);
+          else el.textContent = target >= 1000 ? target.toLocaleString('ru-RU') : target;
+        }
+        requestAnimationFrame(update);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach(c => counterObserver.observe(c));
+
+  // ============ BEFORE / AFTER SLIDER ============
+  const baBefore = document.getElementById('baBeforeImg');
+  const baAfter = document.getElementById('baAfterImg');
+  const baHandle = document.getElementById('baHandle');
+  let baDragging = false;
+
+  function setBA(x) {
+    const rect = baContainer.getBoundingClientRect();
+    let pct = ((x - rect.left) / rect.width) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    
+    // Обрезаем картинку "До" (которая теперь сверху), открывая "После" справа
+    baBefore.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    baHandle.style.left = pct + '%';
+  }
+
+  function startBA(e) {
+    baDragging = true;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    setBA(x);
+  }
+
+  function moveBA(e) {
+    if (!baDragging) return;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    setBA(x);
+  }
+
+  function endBA() { baDragging = false; }
+
+  baContainer.addEventListener('mousedown', startBA);
+  baContainer.addEventListener('touchstart', startBA, { passive: true });
+  window.addEventListener('mousemove', moveBA);
+  window.addEventListener('touchmove', moveBA, { passive: true });
+  window.addEventListener('mouseup', endBA);
+  window.addEventListener('touchend', endBA);
+
+  baBefore.style.clipPath = 'inset(0 50% 0 0)';
+
+  const cases = {
+    '1': { 
+      before: 'img/кейс-1-до.jpg', 
+      after: 'img/кейс-1-после.jpg' 
+    },
+    '2': { 
+      before: 'img/кейс-2-до.jpg', 
+      after: 'img/кейс-2-после.jpg' 
+    },
+    '3': { 
+      before: 'img/кейс-3-до.jpg', 
+      after: 'img/кейс-3-после.jpg' 
+    }
+  };
+
+  document.querySelectorAll('.ba-thumb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ba-thumb').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const caseId = btn.dataset.case;
+      const caseData = cases[caseId];
+      
+      if (caseData) {
+        baBefore.src = caseData.before;
+        baAfter.src = caseData.after;
+        
+        baBefore.style.clipPath = 'inset(0 50% 0 0)';
+        baHandle.style.left = '50%';
+      }
+    });
+  });
+
+  // ============ NEWS ============
+  const newsData = [
+    { tag: 'tech', tagLabel: 'Технологии', title: 'Хирургический шаблон за 40 минут', text: 'Показываем, как внутриротовой сканер и 3D-принтер сокращают время подготовки к имплантации.', date: '12 марта 2026' },
+    { tag: 'case', tagLabel: 'Кейс', title: 'All-on-4 при полном отсутствии зубов', text: 'История пациента: от диагностики до фиксации постоянной конструкции за один визит.', date: '5 марта 2026' },
+    { tag: 'life', tagLabel: 'Жизнь клиники', title: 'Команда прошла обучение по навигационной имплантации', text: 'Три врача клиники освоили протокол цифрового планирования сложных случаев.', date: '28 февраля 2026' },
+    { tag: 'tips', tagLabel: 'Советы', title: 'Как ухаживать за имплантами', text: '5 практических правил, которые продлевают срок службы конструкции на десятилетия.', date: '22 февраля 2026' },
+    { tag: 'tech', tagLabel: 'Технологии', title: 'Почему мы отказались от слепков', text: 'Цифровой оттиск точнее, быстрее и комфортнее для пациента. Разбираем на примере.', date: '20 февраля 2026' },
+    { tag: 'case', tagLabel: 'Кейс', title: 'Эстетическая реставрация фронтальной группы', text: 'Как мы совместили виниры и ортодонтическую подготовку для естественного результата.', date: '14 февраля 2026' },
+  ];
+
+  const newsGrid = document.getElementById('newsGrid');
+  const newsFilters = document.querySelectorAll('.news-filter');
+
+  function renderNews(filter) {
+    const filtered = filter === 'all' ? newsData : newsData.filter(n => n.tag === filter);
+    newsGrid.innerHTML = filtered.map((n, i) => `
+      <article class="news-card" data-delay="${i * 0.08}">
+        <span class="tag">${n.tagLabel}</span>
+        <h3>${n.title}</h3>
+        <p>${n.text}</p>
+        <span class="date">${n.date}</span>
+        <span class="read-more">Читать →</span>
+      </article>
+    `).join('');
+
+    requestAnimationFrame(() => {
+      const cards = newsGrid.querySelectorAll('.news-card');
+      cards.forEach(card => {
+        const delay = parseFloat(card.dataset.delay);
+        setTimeout(() => card.classList.add('visible'), delay * 1000);
+        card.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        card.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
+    });
+  }
+
+  newsFilters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      newsFilters.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderNews(btn.dataset.filter);
+    });
+  });
+
+  renderNews('all');
+
+  // ============ REVIEWS ============
+  const reviews = [
+    { name: 'Анна К.', meta: 'Имплантация All-on-4', text: 'Пришла с полным отсутствием зубов на верхней челюсти. Думала, это на годы. Сделали за 4 визита, конструкция стоит как своя. Огромное спасибо Морозову А.С.!', stars: 5 },
+    { name: 'Дмитрий Л.', meta: 'Виниры E.max', text: 'Выбирал клинику полгода. Здесь единственные, кто показал DSD-проект улыбки ДО начала работы. Результат — точно как в проекте, один в один.', stars: 5 },
+    { name: 'Марина Т.', meta: 'Лечение каналов', text: 'Перелечивала зуб после другой клиники, где сказали «удалять». Ковалёв Д.В. под микроскопом нашёл 4-й канал и спас зуб. Без боли, аккуратно.', stars: 5 },
+    { name: 'Сергей В.', meta: 'Гигиена + имплант', text: 'Понравился подход: сначала диагностика, потом смета с фиксированной ценой. Никаких «а вот тут ещё доплатить». Всё прозрачно, всё по договору.', stars: 5 },
+    { name: 'Ольга М.', meta: 'Имплантация Straumann', text: 'Боялась до дрожи. Врач и ассистент работали так спокойно, что я уснула в кресле. Утром следующего дня уже работала, никакого отёка.', stars: 5 },
+    { name: 'Игорь П.', meta: 'Коронки из циркония', text: 'Цифровой оттиск — это космос по сравнению с ложками с пастой. Сканировали 2 минуты, короны готовы через 5 дней, сели идеально с первого раза.', stars: 5 },
+  ];
+
+  const reviewsTrack = document.getElementById('reviewsTrack');
+  const reviewsHTML = reviews.concat(reviews).map(r => `
+    <div class="review-card">
+      <div class="review-stars">${'★'.repeat(r.stars)}</div>
+      <p class="review-text">${r.text}</p>
+      <div class="review-author">
+        <div class="review-avatar">${r.name.charAt(0)}</div>
+        <div>
+          <strong>${r.name}</strong>
+          <span>${r.meta}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  reviewsTrack.innerHTML = reviewsHTML;
+
+  // ============ FAQ ============
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-question');
+    const a = item.querySelector('.faq-answer');
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-answer').style.maxHeight = '0';
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+
+  // ============ FORM ============
+  const form = document.getElementById('bookingForm');
+  const formContent = document.getElementById('formContent');
+  const formSuccess = document.getElementById('formSuccess');
+
+  const phoneInput = document.getElementById('phone');
+  phoneInput.addEventListener('input', (e) => {
+    let val = e.target.value.replace(/\D/g, '');
+    if (val.startsWith('8')) val = '7' + val.slice(1);
+    if (!val.startsWith('7')) val = '7' + val;
+    let result = '+7';
+    if (val.length > 1) result += ' (' + val.slice(1, 4);
+    if (val.length >= 5) result += ') ' + val.slice(4, 7);
+    if (val.length >= 8) result += '-' + val.slice(7, 9);
+    if (val.length >= 10) result += '-' + val.slice(9, 11);
+    e.target.value = result;
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let valid = true;
+    form.querySelectorAll('[required]').forEach(input => {
+      if (!input.value.trim()) {
+        valid = false;
+        input.style.borderColor = '#FF6B9D';
+        input.addEventListener('input', () => input.style.borderColor = '', { once: true });
+      }
+    });
+    const digits = phoneInput.value.replace(/\D/g, '');
+    if (digits.length < 11) {
+      valid = false;
+      phoneInput.style.borderColor = '#FF6B9D';
+    }
+    if (!valid) return;
+
+    formContent.style.display = 'none';
+    formSuccess.classList.add('show');
+  });
+
+  // ============ SMOOTH ANCHORS ============
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

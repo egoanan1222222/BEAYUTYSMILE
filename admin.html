@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель | BEAUTY SMILE</title>
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --graphite: #1A1A1A;
+    --lime: #C8FF3D;
+    --electric: #2F5BFF;
+    --pink: #FF6B9D;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body { background: #EDE6D8; color: var(--graphite); display: flex; min-height: 100vh; }
+
+  /* ===== LOGIN SCREEN ===== */
+  #login-screen { position: fixed; inset: 0; background: var(--graphite); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .login-box { background: var(--cream); padding: 3rem; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .login-box h2 { margin-bottom: 1.5rem; font-weight: 800; font-size: 2rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; font-weight: 600; opacity: 0.7; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; font-size: 1rem; background: #fff; }
+  .btn { background: var(--graphite); color: var(--cream); border: none; padding: 1rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.3s; }
+  .btn:hover { background: var(--electric); }
+  .btn-lime { background: var(--lime); color: var(--graphite); }
+  .btn-lime:hover { background: #b0e600; }
+
+  /* ===== APP LAYOUT ===== */
+  #app { display: none; width: 100%; }
+  .sidebar { width: 260px; background: var(--graphite); color: var(--cream); padding: 2rem 1rem; display: flex; flex-direction: column; }
+  .sidebar h2 { font-size: 1.2rem; margin-bottom: 2rem; padding-left: 1rem; }
+  .nav-item { padding: 1rem; border-radius: 8px; cursor: pointer; margin-bottom: 0.5rem; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+  .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); }
+  .nav-item.active { border-left: 3px solid var(--lime); }
+  .logout-btn { margin-top: auto; color: var(--pink); cursor: pointer; padding: 1rem; font-weight: 600; }
+
+  .main-content { flex: 1; padding: 3rem; overflow-y: auto; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .header h1 { font-size: 2rem; font-weight: 800; }
+  .user-badge { background: var(--graphite); color: var(--cream); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; }
+
+  /* ===== TABLES & CARDS ===== */
+  .content-section { display: none; }
+  .content-section.active { display: block; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+  th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.95rem; }
+  th { background: #f9f9f9; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+  
+  .status-badge { padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+  .status-new { background: #e0f2fe; color: #0284c7; }
+  .status-process { background: #fef08a; color: #854d0e; }
+  .status-done { background: #dcfce7; color: #166534; }
+  .status-cancel { background: #fee2e2; color: #991b1b; }
+
+  .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn-icon { padding: 0.4rem 0.8rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+  .btn-edit { background: var(--electric); color: #fff; }
+  .btn-delete { background: var(--pink); color: #fff; }
+  .btn-view { background: #eee; color: #333; }
+
+  /* Карточка профиля врача */
+  .profile-card { background: #fff; border-radius: 16px; padding: 2rem; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .profile-header { display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1.5rem; }
+  .profile-photo { width: 100px; height: 100px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; }
+  .profile-name h3 { font-size: 1.5rem; margin-bottom: 0.2rem; }
+  .profile-name p { color: #666; }
+
+  /* ===== MODAL ===== */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .modal.active { display: flex; }
+  .modal-content { background: var(--cream); padding: 2rem; border-radius: 16px; width: 100%; max-width: 500px; }
+  .modal-content h3 { margin-bottom: 1.5rem; }
+  .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+  .modal-actions .btn { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН ВХОДА -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>Вход в CMS</h2>
+    <div class="form-group">
+      <label>Логин</label>
+      <input type="text" id="login-user" placeholder="admin, editor или doctor">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="login-pass" placeholder="12345">
+    </div>
+    <button class="btn btn-lime" onclick="login()">Войти</button>
+    <p style="margin-top:1rem; font-size:0.8rem; opacity:0.6; text-align:center;">
+      Пароль: <b>12345</b><br>Логины: <b>admin</b>, <b>editor</b>, <b>doctor</b>
+    </p>
+  </div>
+</div>
+
+<!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+<div id="app">
+  <aside class="sidebar">
+    <h2>BEAUTY SMILE<br><span style="font-size:0.7rem; opacity:0.5;">Панель управления</span></h2>
+    
+    <!-- Вкладка заявок для Админа и Врача -->
+    <div class="nav-item admin-doctor-only" onclick="switchTab('appointments', this)">
+      <span id="app-tab-title">📅 Заявки</span> 
+      <span id="new-app-count" style="background:var(--pink); color:#fff; padding:0.1rem 0.5rem; border-radius:10px; font-size:0.75rem; display:none;">0</span>
+    </div>
+    
+    <div class="nav-item admin-editor-only" onclick="switchTab('news', this)">📰 Новости</div>
+    <div class="nav-item admin-editor-only" onclick="switchTab('doctors', this)">🩺 Все врачи</div>
+    <div class="nav-item doctor-only" onclick="switchTab('my-profile', this)">👤 Мой профиль</div>
+    <div class="nav-item admin-only" onclick="switchTab('users', this)">👥 Пользователи</div>
+    
+    <div class="logout-btn" onclick="logout()">Выйти →</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="header">
+      <h1 id="page-title">Управление сайтом</h1>
+      <div class="user-badge" id="user-display">Role</div>
+    </div>
+
+    <!-- СЕКЦИЯ: ЗАЯВКИ -->
+    <div id="tab-appointments" class="content-section">
+      <h2 id="app-section-title">Входящие заявки</h2>
+      <p style="opacity:0.6; margin-bottom: 1rem;" id="app-section-desc">Здесь отображаются формы, отправленные с главной страницы.</p>
+      <table>
+        <thead><tr><th>Дата</th><th>Имя / Телефон</th><th>Услуга</th><th>Врач</th><th>Статус</th><th>Действия</th></tr></thead>
+        <tbody id="appointments-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- СЕКЦИЯ: НОВОСТИ -->
+    <div id="tab-news" class="content-section">
+      <button class="btn btn-lime" style="width: auto; margin-bottom: 1rem;" onclick="openModal('news')">+ Добавить новость</button>
+      <table>
+        <thead><tr><th>Заголовок</th><th>Категория</th><th>Дата</th><th>Действия</th></tr></thead>
+        <tbody id="news-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- СЕКЦИЯ: ВСЕ ВРАЧИ -->
+    <div id="tab-doctors" class="content-section">
+      <button class="btn btn-lime" style="width: auto; margin-bottom: 1rem;" onclick="openModal('doctor')">+ Добавить врача</button>
+      <table>
+        <thead><tr><th>Имя</th><th>Специализация</th><th>Опыт</th><th>Действия</th></tr></thead>
+        <tbody id="doctors-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- СЕКЦИЯ: МОЙ ПРОФИЛЬ (Врач) -->
+    <div id="tab-my-profile" class="content-section">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-photo" id="my-photo"></div>
+          <div class="profile-name"><h3 id="my-name">Имя Врача</h3><p id="my-role">Специализация</p></div>
+        </div>
+        <form id="doctor-self-form" onsubmit="saveSelfProfile(event)">
+          <div class="form-group"><label>Ссылка на ваше фото</label><input type="text" id="self-photo" required></div>
+          <div class="form-group"><label>Ваше имя</label><input type="text" id="self-name" required></div>
+          <div class="form-group"><label>Специализация</label><input type="text" id="self-role" required></div>
+          <div class="form-group"><label>Опыт</label><textarea id="self-exp" rows="3" required></textarea></div>
+          <button type="submit" class="btn btn-lime">Сохранить профиль</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- СЕКЦИЯ: ПОЛЬЗОВАТЕЛИ -->
+    <div id="tab-users" class="content-section">
+      <table>
+        <thead><tr><th>Логин</th><th>Роль</th><th>Права</th></tr></thead>
+        <tbody>
+          <tr><td>admin</td><td>Администратор</td><td>Все заявки, контент, назначение врачей</td></tr>
+          <tr><td>editor</td><td>Редактор</td><td>Контент (Новости, Врачи)</td></tr>
+          <tr><td>doctor</td><td>Врач</td><td>Свои заявки, свой профиль</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО: ЗАЯВКА -->
+<div class="modal" id="app-modal">
+  <div class="modal-content">
+    <h3>Карточка пациента</h3>
+    <form onsubmit="saveAppData(event)">
+      <input type="hidden" id="app-index">
+      <div style="background:#fff; padding:1rem; border-radius:8px; margin-bottom:1.5rem; border:1px solid #ddd;">
+        <p style="margin-bottom:0.5rem;"><b>Имя:</b> <span id="app-name-view"></span></p>
+        <p style="margin-bottom:0.5rem;"><b>Телефон:</b> <span id="app-phone-view"></span></p>
+        <p style="margin-bottom:0.5rem;"><b>Услуга:</b> <span id="app-service-view"></span></p>
+        <p style="margin-bottom:0;"><b>Пожелания клиента:</b> <span id="app-message-view"></span></p>
+      </div>
+      
+      <!-- Доступно только Админу -->
+      <div class="form-group admin-only" id="app-doctor-select-group" style="display:none;">
+        <label>Назначить врача</label>
+        <select id="app-doctor-edit"></select>
+      </div>
+      
+      <div class="form-group">
+        <label>Статус</label>
+        <select id="app-status-edit">
+          <option value="Новая">Новая</option>
+          <option value="В обработке">В обработке</option>
+          <option value="Записан">Записан</option>
+          <option value="Принят">Принят (визит завершен)</option>
+          <option value="Отменена">Отменена</option>
+        </select>
+      </div>
+
+      <!-- Доступно Врачу и Админу -->
+      <div class="form-group">
+        <label>Заметка врача / Комментарий</label>
+        <textarea id="app-note-edit" rows="2" placeholder="Например: требуется анестезия..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn" style="background:#ccc; color:#000;" onclick="closeAppModal()">Отмена</button>
+        <button type="submit" class="btn btn-lime">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО: КОНТЕНТ -->
+<div class="modal" id="edit-modal">
+  <div class="modal-content">
+    <h3 id="modal-title">Редактирование</h3>
+    <form id="edit-form" onsubmit="saveData(event)">
+      <input type="hidden" id="edit-type">
+      <input type="hidden" id="edit-index">
+      <div id="form-news" style="display:none;">
+        <div class="form-group"><label>Заголовок</label><input type="text" id="news-title" required></div>
+        <div class="form-group"><label>Категория</label>
+          <select id="news-tag"><option value="tech">Технологии</option><option value="case">Кейсы</option><option value="life">Жизнь клиники</option><option value="tips">Советы</option></select>
+        </div>
+        <div class="form-group"><label>Текст</label><textarea id="news-text" rows="3" required></textarea></div>
+        <div class="form-group"><label>Дата</label><input type="text" id="news-date" required></div>
+      </div>
+      <div id="form-doctor" style="display:none;">
+        <div class="form-group"><label>Имя врача</label><input type="text" id="doc-name" required></div>
+        <div class="form-group"><label>Специализация</label><input type="text" id="doc-role" required></div>
+        <div class="form-group"><label>Ссылка на фото</label><input type="text" id="doc-photo"></div>
+        <div class="form-group"><label>Опыт (кратко)</label><input type="text" id="doc-exp" required></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" style="background:#ccc; color:#000;" onclick="closeModal()">Отмена</button>
+        <button type="submit" class="btn btn-lime">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Дефолтные данные
+const defaultNews = [{ tag: 'tech', tagLabel: 'Технологии', title: 'Хирургический шаблон за 40 минут', text: 'Показываем, как сканер сокращает время.', date: '12 марта 2026' }];
+const defaultDoctors = [
+  { name: 'Сотнич Алексей Юрьевич', role: 'Хирург-имплантолог', exp: 'Главный врач · 15 лет практики', photo: 'https://optim.tildacdn.com/tild3530-3135-4434-a161-326430643238/-/resize/340x/-/format/webp/3.jpg.webp' },
+  { name: 'Джамалова Азада', role: 'Ортопед', exp: '12 лет практики', photo: 'https://optim.tildacdn.com/tild6631-3330-4630-a362-376431396431/-/resize/340x/-/format/webp/__.jpg.webp' }
+];
+// Заявки теперь имеют doctorId (индекс врача) и note (заметка)
+const defaultApps = [
+  { id: 1, name: 'Иван Петров', phone: '+7 (999) 123-45-67', service: 'Имплантация', message: 'Беспокоит зуб мудрости', date: '10.11.2026 14:30', status: 'Новая', doctorId: 0, note: '' },
+  { id: 2, name: 'Анна Смирнова', phone: '+7 (912) 765-43-21', service: 'Виниры', message: '', date: '10.11.2026 12:15', status: 'Записан', doctorId: 1, note: 'Аллергия на лидокаин' }
+];
+
+if (!localStorage.getItem('bs_news')) localStorage.setItem('bs_news', JSON.stringify(defaultNews));
+if (!localStorage.getItem('bs_doctors')) localStorage.setItem('bs_doctors', JSON.stringify(defaultDoctors));
+if (!localStorage.getItem('bs_appointments')) localStorage.setItem('bs_appointments', JSON.stringify(defaultApps));
+
+let currentRole = '';
+let currentDoctorIndex = 0; // По умолчанию врач логинится под индексом 0 (Сотнич)
+
+// Авторизация
+function login() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  
+  if (pass !== '12345') return alert('Пароль: 12345');
+  
+  document.querySelectorAll('.nav-item').forEach(el => el.style.display = 'none');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  if (user === 'admin') {
+    currentRole = 'admin';
+    document.getElementById('user-display').innerText = '👑 Администратор';
+    document.querySelectorAll('.admin-only, .admin-editor-only, .admin-doctor-only').forEach(el => el.style.display = 'flex');
+    switchTab('appointments');
+  } else if (user === 'editor') {
+    currentRole = 'editor';
+    document.getElementById('user-display').innerText = '✏️ Редактор';
+    document.querySelectorAll('.admin-editor-only').forEach(el => el.style.display = 'flex');
+    switchTab('news');
+  } else if (user === 'doctor') {
+    currentRole = 'doctor';
+    document.getElementById('user-display').innerText = '🩺 Врач (Сотнич А.Ю.)'; // В демо он Сотнич
+    document.querySelectorAll('.doctor-only, .admin-doctor-only').forEach(el => el.style.display = 'flex');
+    document.getElementById('app-tab-title').innerText = '📅 Мои пациенты'; // Меняем название вкладки
+    switchTab('my-profile');
+    loadSelfProfile();
+  } else {
+    alert('Неверный логин'); location.reload();
+  }
+  
+  if (currentRole !== 'editor') renderAppointments();
+  if (currentRole !== 'doctor') renderTables();
+}
+
+function logout() { location.reload(); }
+
+function switchTab(tabId, el) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else document.querySelector(`.nav-item[onclick*="${tabId}"]`).classList.add('active');
+  
+  document.getElementById('tab-' + tabId).classList.add('active');
+  
+  const titles = { 
+    'appointments': currentRole === 'doctor' ? 'Мои пациенты' : 'Заявки с сайта', 
+    'news': 'Управление новостями', 'doctors': 'Список врачей', 'my-profile': 'Мой профиль', 'users': 'Пользователи' 
+  };
+  document.getElementById('page-title').innerText = titles[tabId] || 'Панель управления';
+
+  if(tabId === 'appointments') renderAppointments();
+}
+
+// ================= ЗАЯВКИ =================
+function renderAppointments() {
+  const apps = JSON.parse(localStorage.getItem('bs_appointments')) || [];
+  const doctors = JSON.parse(localStorage.getItem('bs_doctors')) || [];
+  
+  // Фильтрация: Врач видит только свои заявки. Админ - все.
+  let filteredApps = apps;
+  if (currentRole === 'doctor') {
+    filteredApps = apps.filter(a => a.doctorId === currentDoctorIndex);
+  }
+
+  // Счетчик новых
+  const newCount = filteredApps.filter(a => a.status === 'Новая').length;
+  const counter = document.getElementById('new-app-count');
+  if (newCount > 0) { counter.style.display = 'inline-block'; counter.innerText = newCount; } 
+  else { counter.style.display = 'none'; }
+
+  document.getElementById('appointments-table-body').innerHTML = filteredApps.map((a) => {
+    // Находим реальный индекс в общем массиве для редактирования
+    const realIndex = apps.findIndex(orig => orig.id === a.id);
+    
+    let statusClass = 'status-new';
+    if (a.status === 'В обработке') statusClass = 'status-process';
+    if (a.status === 'Записан' || a.status === 'Принят') statusClass = 'status-done';
+    if (a.status === 'Отменена') statusClass = 'status-cancel';
+
+    const docName = doctors[a.doctorId] ? doctors[a.doctorId].name.split(' ')[0] + ' ' + doctors[a.doctorId].name.split(' ')[1] : 'Не назначен';
+
+    return `
+      <tr>
+        <td><small style="opacity:0.6">${a.date}</small></td>
+        <td><strong>${a.name}</strong><br><small>${a.phone}</small></td>
+        <td>${a.service}</td>
+        <td>${docName}</td>
+        <td>
+          <span class="status-badge ${statusClass}">${a.status}</span>
+          ${a.note ? `<br><small style="color:var(--electric); font-weight:600;">✎ ${a.note}</small>` : ''}
+        </td>
+        <td class="actions">
+          <button class="btn-icon btn-edit" onclick="openAppModal(${realIndex})">✎ Открыть</button>
+          ${currentRole === 'admin' ? `<button class="btn-icon btn-delete" onclick="deleteApp(${realIndex})">✕</button>` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openAppModal(index) {
+  const apps = JSON.parse(localStorage.getItem('bs_appointments'));
+  const doctors = JSON.parse(localStorage.getItem('bs_doctors'));
+  const app = apps[index];
+  
+  document.getElementById('app-index').value = index;
+  document.getElementById('app-name-view').innerText = app.name;
+  document.getElementById('app-phone-view').innerText = app.phone;
+  document.getElementById('app-service-view').innerText = app.service;
+  document.getElementById('app-message-view').innerText = app.message || 'Нет';
+  document.getElementById('app-status-edit').value = app.status;
+  document.getElementById('app-note-edit').value = app.note || '';
+  
+  // Блок назначения врача (только для админа)
+  const docSelectGroup = document.getElementById('app-doctor-select-group');
+  const docSelect = document.getElementById('app-doctor-edit');
+  
+  if (currentRole === 'admin') {
+    docSelectGroup.style.display = 'block';
+    docSelect.innerHTML = `<option value="-1">-- Не назначен --</option>` + 
+      doctors.map((d, i) => `<option value="${i}" ${app.doctorId === i ? 'selected' : ''}>${d.name}</option>`).join('');
+  } else {
+    docSelectGroup.style.display = 'none'; // Врач не может менять врача
+  }
+  
+  document.getElementById('app-modal').classList.add('active');
+}
+
+function closeAppModal() { document.getElementById('app-modal').classList.remove('active'); }
+
+function saveAppData(e) {
+  e.preventDefault();
+  const index = parseInt(document.getElementById('app-index').value);
+  const apps = JSON.parse(localStorage.getItem('bs_appointments'));
+  
+  apps[index].status = document.getElementById('app-status-edit').value;
+  apps[index].note = document.getElementById('app-note-edit').value;
+  
+  // Менять врача может только админ
+  if (currentRole === 'admin') {
+    const docIdVal = parseInt(document.getElementById('app-doctor-edit').value);
+    apps[index].doctorId = docIdVal === -1 ? null : docIdVal;
+  }
+  
+  localStorage.setItem('bs_appointments', JSON.stringify(apps));
+  closeAppModal();
+  renderAppointments();
+}
+
+function deleteApp(index) {
+  if (!confirm('Удалить эту заявку навсегда?')) return;
+  const apps = JSON.parse(localStorage.getItem('bs_appointments'));
+  apps.splice(index, 1);
+  localStorage.setItem('bs_appointments', JSON.stringify(apps));
+  renderAppointments();
+}
+
+// ================= ОСТАЛЬНОЕ =================
+function renderTables() {
+  const news = JSON.parse(localStorage.getItem('bs_news'));
+  document.getElementById('news-table-body').innerHTML = news.map((n, i) => `
+    <tr><td><strong>${n.title}</strong></td><td>${n.tagLabel}</td><td>${n.date}</td>
+    <td class="actions"><button class="btn-icon btn-edit" onclick="openModal('news', ${i})">✎</button><button class="btn-icon btn-delete" onclick="deleteItem('news', ${i})">✕</button></td></tr>
+  `).join('');
+
+  const doctors = JSON.parse(localStorage.getItem('bs_doctors'));
+  document.getElementById('doctors-table-body').innerHTML = doctors.map((d, i) => `
+    <tr><td><strong>${d.name}</strong></td><td>${d.role}</td><td>${d.exp}</td>
+    <td class="actions"><button class="btn-icon btn-edit" onclick="openModal('doctor', ${i})">✎</button><button class="btn-icon btn-delete" onclick="deleteItem('doctors', ${i})">✕</button></td></tr>
+  `).join('');
+}
+
+function loadSelfProfile() {
+  const doctors = JSON.parse(localStorage.getItem('bs_doctors'));
+  const doc = doctors[currentDoctorIndex];
+  if (doc) {
+    document.getElementById('my-photo').style.backgroundImage = `url('${doc.photo}')`;
+    document.getElementById('my-name').innerText = doc.name;
+    document.getElementById('my-role').innerText = doc.role;
+    document.getElementById('self-photo').value = doc.photo;
+    document.getElementById('self-name').value = doc.name;
+    document.getElementById('self-role').value = doc.role;
+    document.getElementById('self-exp').value = doc.exp;
+  }
+}
+
+function saveSelfProfile(e) {
+  e.preventDefault();
+  const doctors = JSON.parse(localStorage.getItem('bs_doctors'));
+  doctors[currentDoctorIndex] = { ...doctors[currentDoctorIndex], photo: document.getElementById('self-photo').value, name: document.getElementById('self-name').value, role: document.getElementById('self-role').value, exp: document.getElementById('self-exp').value };
+  localStorage.setItem('bs_doctors', JSON.stringify(doctors));
+  alert('Профиль обновлен!');
+  loadSelfProfile();
+}
+
+function openModal(type, index = -1) {
+  document.getElementById('edit-modal').classList.add('active');
+  document.getElementById('edit-type').value = type;
+  document.getElementById('edit-index').value = index;
+  document.getElementById('form-news').style.display = type === 'news' ? 'block' : 'none';
+  document.getElementById('form-doctor').style.display = type === 'doctor' ? 'block' : 'none';
+  document.getElementById('modal-title').innerText = (index === -1 ? 'Добавить ' : 'Редактировать ') + (type === 'news' ? 'новость' : 'врача');
+
+  if (type === 'news') {
+    const news = JSON.parse(localStorage.getItem('bs_news'));
+    if (index > -1) { const n = news[index]; document.getElementById('news-title').value = n.title; document.getElementById('news-tag').value = n.tag; document.getElementById('news-text').value = n.text; document.getElementById('news-date').value = n.date; } 
+    else document.getElementById('edit-form').reset();
+  } else {
+    const docs = JSON.parse(localStorage.getItem('bs_doctors'));
+    if (index > -1) { const d = docs[index]; document.getElementById('doc-name').value = d.name; document.getElementById('doc-role').value = d.role; document.getElementById('doc-exp').value = d.exp; document.getElementById('doc-photo').value = d.photo; } 
+    else document.getElementById('edit-form').reset();
+  }
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('active'); }
+
+function saveData(e) {
+  e.preventDefault();
+  const type = document.getElementById('edit-type').value;
+  const index = parseInt(document.getElementById('edit-index').value);
+
+  if (type === 'news') {
+    const news = JSON.parse(localStorage.getItem('bs_news'));
+    const tagSelect = document.getElementById('news-tag');
+    const newItem = { tag: tagSelect.value, tagLabel: tagSelect.options[tagSelect.selectedIndex].text, title: document.getElementById('news-title').value, text: document.getElementById('news-text').value, date: document.getElementById('news-date').value };
+    if (index === -1) news.push(newItem); else news[index] = newItem;
+    localStorage.setItem('bs_news', JSON.stringify(news));
+  } else {
+    const docs = JSON.parse(localStorage.getItem('bs_doctors'));
+    const newItem = { name: document.getElementById('doc-name').value, role: document.getElementById('doc-role').value, exp: document.getElementById('doc-exp').value, photo: document.getElementById('doc-photo').value || 'img/team.jpg' };
+    if (index === -1) docs.push(newItem); else docs[index] = newItem;
+    localStorage.setItem('bs_doctors', JSON.stringify(docs));
+  }
+  closeModal(); renderTables();
+}
+
+function deleteItem(type, index) {
+  if (!confirm('Удалить?')) return;
+  const data = JSON.parse(localStorage.getItem('bs_' + type));
+  data.splice(index, 1);
+  localStorage.setItem('bs_' + type, JSON.stringify(data));
+  renderTables();
+}
+</script>
+</body>
+</html>
